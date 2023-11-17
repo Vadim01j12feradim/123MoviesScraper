@@ -1,22 +1,24 @@
 from selenium import webdriver
-from selenium import By
-# Create a new instance of the Chrome driver
-driver = webdriver.Firefox()
+from selenium.webdriver.common.by import By
 
-# Navigate to the website
+driver = webdriver.Chrome()
+
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
-# Perform actions to interact with the page and obtain the ticket information
-# (These actions will depend on the structure of the website)
+main_element = driver.find_element(By.TAG_NAME, "main")
+Fch = main_element.find_element(By.TAG_NAME, "div")
+d1 = Fch.find_element(By.TAG_NAME, "div")
+d1 = d1.find_element(By.TAG_NAME, "h1")
 
-# Example: Find an element by its ID
-ticket_element = driver.find_element_by_id('ticket_id')
+print("Gener: "+d1.text+"\n\n")
 
-# Get the text content of the ticket element
-ticket_text = ticket_element.text
+elements_with_class = Fch.find_elements(By.CLASS_NAME, 'col')
 
-# Print the ticket information
-print(f'Ticket Information: {ticket_text}')
+# Print the text content of each element
+for element in elements_with_class:
+    name = element.find_element(By.TAG_NAME, "h2")
+    source = element.find_element(By.TAG_NAME, "a")
+    print("Title:", name.text)
+    print("Source:", source.get_attribute('href'))
 
-# Close the browser window
 driver.quit()
