@@ -1,9 +1,10 @@
 from selenium import webdriver
+from selenium import By
 # Create a new instance of the Chrome driver
 driver = webdriver.Firefox()
 
 # Navigate to the website
-driver.get('https://example.com')
+driver.get('https://ww2.123moviesfree.net/genre/action/')
 
 # Perform actions to interact with the page and obtain the ticket information
 # (These actions will depend on the structure of the website)
