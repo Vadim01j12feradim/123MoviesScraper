@@ -18,7 +18,11 @@ elements_with_class = Fch.find_elements(By.CLASS_NAME, 'col')
 for element in elements_with_class:
     name = element.find_element(By.TAG_NAME, "h2")
     source = element.find_element(By.TAG_NAME, "a")
+    img = element.find_element(By.TAG_NAME, "img")
+    resolution = element.find_element(By.TAG_NAME, "span")
     print("Title:", name.text)
     print("Source:", source.get_attribute('href'))
+    print("Img:", img.get_attribute('src'))
+    print("Img:", resolution.text)
 
 driver.quit()
