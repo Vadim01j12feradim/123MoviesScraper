@@ -1,1 +1,1 @@
-THis is an exampel of get data with Scraping
+This is an exampel of get data with Scraping

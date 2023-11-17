@@ -20,9 +20,16 @@ for element in elements_with_class:
     source = element.find_element(By.TAG_NAME, "a")
     img = element.find_element(By.TAG_NAME, "img")
     resolution = element.find_element(By.TAG_NAME, "span")
+    span_element = driver.find_element(By.CLASS_NAME, 'mlbe')
+    num = span_element.find_element(By.TAG_NAME, 'i').text
+
+    text_content = span_element.text.replace(num, '')
+
+
     print("Title:", name.text)
     print("Source:", source.get_attribute('href'))
     print("Img:", img.get_attribute('src'))
-    print("Img:", resolution.text)
+    print("Sol:", text_content)
+    print("num:", num)
 
 driver.quit()
