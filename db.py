@@ -12,16 +12,8 @@ class Sql:
             INSERT INTO Video (UrlVideo, Duration, ReleaseDate, Score, Description, Name, Img)
             VALUES (%(UrlVideo)s, %(Duration)s, %(ReleaseDate)s, %(Score)s, %(Description)s, %(Name)s, %(Img)s)
         """
-    def insertVideo(self):
-        data = {
-            'UrlVideo': 'sample_url',
-            'Duration': '00:10:00',
-            'ReleaseDate': '2022-01-01',
-            'Score': 9.5,
-            'Description': 'A great video',
-            'Name': 'Sample Video',
-            'Img': 'sample_image_url',
-        }
+    def insertVideo(self, data):
+        
         return self.insertAndGetId(self.insert_Video_Query, data)
         
     def insertAndGetId(self,query, data):

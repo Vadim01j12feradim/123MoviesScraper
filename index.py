@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from Models import *
+from db import *
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
@@ -80,6 +81,10 @@ def getDataVideo(click):
     except Exception as e:
         print("null")
 
+def openNewTab(url):        
+    driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
+    driver.switch_to.window(driver.window_handles[1])
+    driver.get(new_tab_url)
 
 
 uniqueText = r"\w+"
@@ -92,6 +97,7 @@ driver.switch_to.window(driver.window_handles[0])
 
 Genres = Genres.find_element(By.XPATH, 'following-sibling::*')
 Genres = Genres.find_elements(By.TAG_NAME, "li")
+sql = Sql()
 
 for gener in Genres:
     gener.click()
@@ -113,29 +119,32 @@ for gener in Genres:
         
         for element in elements_with_class:
             
+            video = Video()
+            movie = Movie()
+            serie = Serie()
+
             name = element.find_element(By.TAG_NAME, "h2")
             source = element.find_element(By.TAG_NAME, "a")
+            new_tab_url = source.get_attribute('href')
             img = element.find_element(By.TAG_NAME, "img")
             resolution = element.find_element(By.TAG_NAME, "span")
-            span_element = driver.find_element(By.CLASS_NAME, 'mlbe')
-            num = span_element.find_element(By.TAG_NAME, 'i').text
 
-            text_content = span_element.text.replace(num, '')
-            text_content = re.search(uniqueText, text_content)
-            print("\n\nTitle:", name.text)
-            print("Source:", source.get_attribute('href'))
-            print("Img:", img.get_attribute('src'))
-            print("Sol:", text_content.group(0))
-            print("num:", num)
-
-            new_tab_url = source.get_attribute('href')
-            driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
-
-            driver.switch_to.window(driver.window_handles[1])
-
-            driver.get(new_tab_url)
-
-            getDataVideo(True)
+            span_element = element.find_element(By.CLASS_NAME, 'mlbe')
+            try:
+                num = span_element.find_element(By.TAG_NAME, 'i').text
+                serie.Eps = num
+                serie.Name = name.text
+                serie.Img = img.get_attribute('src')
+                openNewTab(new_tab_url)
+                getDataVideo(True)
+            except Exception as e:
+                span_element = element.find_element(By.CLASS_NAME, 'mlbq')
+                num = span_element.find_element(By.TAG_NAME, 'i').text
+                video.Name = name.text
+                video.Img = img.get_attribute('src')
+                openNewTab(new_tab_url)
+                getDataVideo(True)
+            
 
             try:
                 episodes = driver.find_element(By.ID, "eps-list")
