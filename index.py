@@ -11,9 +11,10 @@ from db import *
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
-def getDataVideo(click, video):
+def getDataVideo(click):
     genre = Genre()
     actor = Actor()
+    video = Video()
     director = Director()
     country = Country()
 
@@ -44,22 +45,33 @@ def getDataVideo(click, video):
         id = sql.insert_Genre_Query(genre)
         genresIds.append(id)
 
-    Actor = driver.find_element(By.XPATH, "//strong[text()='Actor:']")
-    Actor = Actor.find_element(By.XPATH, "..")
-    Actors = Actor.find_elements(By.TAG_NAME, "a")
+    ActorD = driver.find_element(By.XPATH, "//strong[text()='Actor:']")
+    ActorD = ActorD.find_element(By.XPATH, "..")
+    Actors = ActorD.find_elements(By.TAG_NAME, "a")
+    actorsIds = []
     for act in Actors:
-        print(act.text)
+        actor.Name = act.text
+        idA  = sql.insertActor(actor)
+        actorsIds.append(idA)
     
-     
-    Director = driver.find_element(By.XPATH, "//strong[text()='Director:']")
-    Director = Director.find_element(By.XPATH, "..")
-    print(Director.text)
-
-    Country = driver.find_element(By.XPATH, "//strong[text()='Country:']")
-    Country = Country.find_element(By.XPATH, "..")
-    Countrys = Country.find_elements(By.TAG_NAME, "a")
+    DirectorStr = driver.find_element(By.XPATH, "//strong[text()='Director:']")
+    DirectorStr = DirectorStr.find_element(By.XPATH, "..").text
+    array_dir = re.split(r',', DirectorStr)
+    directorIds = []
+    for dir in array_dir:
+        director.Name = dir
+        idD = sql.insertDirector(director)
+        directorIds.append(idD)
+        
+    CountryD = driver.find_element(By.XPATH, "//strong[text()='Country:']")
+    CountryD = CountryD.find_element(By.XPATH, "..")
+    Countrys = CountryD.find_elements(By.TAG_NAME, "a")
+    countryIds = []
     for countr in Countrys:
-        print(countr.text)
+        country.Name = countr.text
+        idC = sql.insertCountry(country)
+        countryIds.append(idC)
+
     try:
         Episode = driver.find_element(By.XPATH, "//strong[text()='Episode:']")
         Episode = Episode.find_element(By.XPATH, "..")
