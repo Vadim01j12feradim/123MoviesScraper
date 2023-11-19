@@ -15,6 +15,14 @@ class Sql:
         self.select_Video_Query = """
             SELECT Id FROM Video WHERE UrlVideo =  %(UrlVideo)s AND Name = %(Name)s AND Duration = %(Duration)s
         """
+        self.insert_Serie_Query = """
+            INSERT INTO Serie (Eps, Name, Img)
+            VALUES (%(Eps)s, %(Name)s, %(Img)s)
+        """
+        self.select_Serie_Query = """
+            SELECT Id FROM Serie WHERE Eps =  %(Eps)s AND Name = %(Name)s AND Img = %(Img)s
+        """
+
         self.insert_Genre_Query = """
             INSERT INTO Genre (Name) VALUES (%(Name)s)
         """
@@ -53,6 +61,9 @@ class Sql:
     
     def insertCountry(self, data):
         return self.insertAndGetId(self.select_Country_Query, self.insert_Country_Query, data)
+    
+    def insertSerie(self, data):
+        return self.insertAndGetId(self.select_Serie_Query, self.insert_Serie_Query, data)
     
     def insertAndGetId(self,select_query, insert_query, data):
         last_inserted_id = 0

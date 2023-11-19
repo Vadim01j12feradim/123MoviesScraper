@@ -156,7 +156,9 @@ for gener in Genres:
                 serie.Eps = num
                 serie.Name = name.text
                 serie.Img = img.get_attribute('src')
+                idSerie = sql.insertSerie(serie)
                 openNewTab(new_tab_url)
+                
                 try:
                     episodes = driver.find_element(By.ID, "eps-list")
                     eps_list = WebDriverWait(driver, 10).until(
