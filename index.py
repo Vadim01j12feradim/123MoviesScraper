@@ -11,7 +11,12 @@ from db import *
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
-def getDataVideo(click):
+def getDataVideo(click, video):
+    genre = Genre()
+    actor = Actor()
+    director = Director()
+    country = Country()
+
     if click:
         mid = driver.find_element(By.ID, "mid")
         mid.click()
@@ -27,13 +32,17 @@ def getDataVideo(click):
 
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
-    print("Video"+urlVideo)
+    video.UrlVideo = urlVideo
+    # print("Video"+urlVideo)
 
-    Genre = driver.find_element(By.XPATH, "//strong[text()='Genre:']")
-    Genre = Genre.find_element(By.XPATH, "..")
-    Genres = Genre.find_elements(By.TAG_NAME, "a")
-    for genre in Genres:
-        print(genre.text)
+    GenreD = driver.find_element(By.XPATH, "//strong[text()='Genre:']")
+    GenreD = GenreD.find_element(By.XPATH, "..")
+    Genres = GenreD.find_elements(By.TAG_NAME, "a")
+    genresIds = []
+    for genreD in Genres:
+        genre.Name = genreD.text
+        id = sql.insert_Genre_Query(genre)
+        genresIds.append(id)
 
     Actor = driver.find_element(By.XPATH, "//strong[text()='Actor:']")
     Actor = Actor.find_element(By.XPATH, "..")
@@ -136,7 +145,26 @@ for gener in Genres:
                 serie.Name = name.text
                 serie.Img = img.get_attribute('src')
                 openNewTab(new_tab_url)
-                getDataVideo(True)
+                try:
+                    episodes = driver.find_element(By.ID, "eps-list")
+                    eps_list = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.ID, "eps-list"))
+                    )
+                    
+                    episodes = eps_list.find_elements(By.TAG_NAME, "button")
+                    ok = []
+                    ok.append(episodes[0].text)
+                    getDataVideo(True)
+                    for epi in episodes:
+                        if epi.text not in ok:
+                            print(epi.text)
+                            ok.append(epi.text)
+                            driver.execute_script("arguments[0].click();", epi)
+                            time.sleep(3)
+                            getDataVideo(False)
+
+                except Exception as e:
+                    print("null")
             except Exception as e:
                 span_element = element.find_element(By.CLASS_NAME, 'mlbq')
                 num = span_element.find_element(By.TAG_NAME, 'i').text
@@ -144,33 +172,7 @@ for gener in Genres:
                 video.Img = img.get_attribute('src')
                 openNewTab(new_tab_url)
                 getDataVideo(True)
-            
 
-            try:
-                episodes = driver.find_element(By.ID, "eps-list")
-                eps_list = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.ID, "eps-list"))
-                )
-                
-                episodes = eps_list.find_elements(By.TAG_NAME, "button")
-                ok = []
-                ok.append(episodes[0].text)
-                for epi in episodes:
-                    if epi.text not in ok:
-                        print(epi.text)
-                        ok.append(epi.text)
-
-                        driver.execute_script("arguments[0].click();", epi)
-                        
-                        time.sleep(3)
-
-                        getDataVideo(False)
-
-            except Exception as e:
-                print("null")
-
-            
-            
             driver.switch_to.window(driver.window_handles[0])
 
             window_handles = driver.window_handles
