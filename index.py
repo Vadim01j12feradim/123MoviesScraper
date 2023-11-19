@@ -15,12 +15,13 @@ def getDataVideo(click):
         mid.click()
         time.sleep(3)
 
-
-        driver.switch_to.window(driver.window_handles[2])
-        driver.close()
-
-        # Switch back to the second tab
-        driver.switch_to.window(driver.window_handles[1])
+        try:
+            driver.switch_to.window(driver.window_handles[2])
+            driver.close()
+        except Exception as e:
+                print("null")
+        finally:
+            driver.switch_to.window(driver.window_handles[1])
 
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
@@ -53,9 +54,10 @@ def getDataVideo(click):
         Episode = Episode.find_element(By.XPATH, "..")
         print(Episode.text)
     except Exception as e:
-        print("null")
-    
-
+        Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
+        Quality = Quality.find_element(By.XPATH, "..")
+        print(Quality.text)
+        
     Release = driver.find_element(By.XPATH, "//strong[text()='Release:']")
     Release = Release.find_element(By.XPATH, "..")
     Releases = Release.find_elements(By.TAG_NAME, "a")
@@ -70,6 +72,12 @@ def getDataVideo(click):
     Duration = driver.find_element(By.XPATH, "//strong[text()='Duration:']")
     Duration = Duration.find_element(By.XPATH, "..")
     print(Duration.text)
+
+    try:
+        target_div = driver.find_element(By.XPATH, '//div[contains(@class,"fst-italic") and contains(@class,"lh-sm") and contains(@class,"mb-2")]')
+        print(target_div.text)
+    except Exception as e:
+        print("null")
 
 
 
