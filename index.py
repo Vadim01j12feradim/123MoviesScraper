@@ -6,6 +6,7 @@ driver = webdriver.Chrome()
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from Models import *
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
@@ -57,7 +58,7 @@ def getDataVideo(click):
         Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
         Quality = Quality.find_element(By.XPATH, "..")
         print(Quality.text)
-        
+
     Release = driver.find_element(By.XPATH, "//strong[text()='Release:']")
     Release = Release.find_element(By.XPATH, "..")
     Releases = Release.find_elements(By.TAG_NAME, "a")
