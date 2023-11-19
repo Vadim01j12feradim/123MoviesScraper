@@ -9,17 +9,18 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
-def getDataVideo():
-    mid = driver.find_element(By.ID, "mid")
-    mid.click()
-    time.sleep(3)
+def getDataVideo(click):
+    if click:
+        mid = driver.find_element(By.ID, "mid")
+        mid.click()
+        time.sleep(3)
 
 
-    driver.switch_to.window(driver.window_handles[2])
-    driver.close()
+        driver.switch_to.window(driver.window_handles[2])
+        driver.close()
 
-    # Switch back to the second tab
-    driver.switch_to.window(driver.window_handles[1])
+        # Switch back to the second tab
+        driver.switch_to.window(driver.window_handles[1])
 
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
@@ -109,38 +110,30 @@ for element in elements_with_class:
     # For example:
     driver.get(new_tab_url)
 
-    getDataVideo()
+    getDataVideo(True)
 
-    # try:
-    #     episodes = driver.find_element(By.ID, "eps-list")
-    #     eps_list = WebDriverWait(driver, 10).until(
-    #         EC.presence_of_element_located((By.ID, "eps-list"))
-    #     )
+    try:
+        episodes = driver.find_element(By.ID, "eps-list")
+        eps_list = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "eps-list"))
+        )
         
-    #     episodes = eps_list.find_elements(By.TAG_NAME, "button")
-    #     ok = []
-    #     ok.append(episodes[0].text)
-    #     for epi in episodes:
-    #         if epi.text not in ok:
-    #             print(epi.text)
-    #             ok.append(epi.text)
+        episodes = eps_list.find_elements(By.TAG_NAME, "button")
+        ok = []
+        ok.append(episodes[0].text)
+        for epi in episodes:
+            if epi.text not in ok:
+                print(epi.text)
+                ok.append(epi.text)
+
+                driver.execute_script("arguments[0].click();", epi)
                 
-    #             driver.execute_script("arguments[0].scrollIntoView();", epi)
+                time.sleep(3)
 
-    #             # Move to the element and click with adjusted position
-    #             action = ActionChains(driver)
-    #             action.move_to_element_with_offset(epi, 5, 5).click()
-                
-    #             time.sleep(3)
+                getDataVideo(False)
 
-    #             # driver.switch_to.window(driver.window_handles[2])
-    #             # driver.close()
-    #             # driver.switch_to.window(driver.window_handles[1])
-    #             # time.sleep(1)
-    #             getDataVideo()
-
-    # except Exception as e:
-    #     print("null")
+    except Exception as e:
+        print("null")
 
     
     
