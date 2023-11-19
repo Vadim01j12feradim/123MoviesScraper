@@ -15,6 +15,7 @@ class Video:
 
 class Movie:
     def __init__(self):
+        self.Id = 0
         self.IdVideo = 0
         self.Quality = ""
 
