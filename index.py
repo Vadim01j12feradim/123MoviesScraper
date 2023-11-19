@@ -71,83 +71,105 @@ def getDataVideo(click):
     Duration = Duration.find_element(By.XPATH, "..")
     print(Duration.text)
 
-main_element = driver.find_element(By.TAG_NAME, "main")
-Fch = main_element.find_element(By.TAG_NAME, "div")
-d1 = Fch.find_element(By.TAG_NAME, "div")
-d1 = d1.find_element(By.TAG_NAME, "h1")
 
-print("Gener: "+d1.text+"\n\n")
-
-elements_with_class = Fch.find_elements(By.CLASS_NAME, 'col')
 
 uniqueText = r"\w+"
 # Print the text content of each element
+Genres = driver.find_element(By.XPATH, '//a[contains(.,"Genres")]')
+Genres.click()
+driver.switch_to.window(driver.window_handles[1])
+driver.close()
+driver.switch_to.window(driver.window_handles[0])
 
-for element in elements_with_class:
-    
-    name = element.find_element(By.TAG_NAME, "h2")
-    source = element.find_element(By.TAG_NAME, "a")
-    img = element.find_element(By.TAG_NAME, "img")
-    resolution = element.find_element(By.TAG_NAME, "span")
-    span_element = driver.find_element(By.CLASS_NAME, 'mlbe')
-    num = span_element.find_element(By.TAG_NAME, 'i').text
+Genres = Genres.find_element(By.XPATH, 'following-sibling::*')
+Genres = Genres.find_elements(By.TAG_NAME, "li")
 
-    text_content = span_element.text.replace(num, '')
-    text_content = re.search(uniqueText, text_content)
-    print("\n\nTitle:", name.text)
-    print("Source:", source.get_attribute('href'))
-    print("Img:", img.get_attribute('src'))
-    print("Sol:", text_content.group(0))
-    print("num:", num)
-
-    new_tab_url = source.get_attribute('href')
-    driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
-
-    # Switch to the new tab
-    driver.switch_to.window(driver.window_handles[1])
-
-    # Perform actions in the new tab if needed
-    # For example:
-    driver.get(new_tab_url)
-
-    getDataVideo(True)
-
+for gener in Genres:
+    gener.click()
     try:
-        episodes = driver.find_element(By.ID, "eps-list")
-        eps_list = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "eps-list"))
-        )
-        
-        episodes = eps_list.find_elements(By.TAG_NAME, "button")
-        ok = []
-        ok.append(episodes[0].text)
-        for epi in episodes:
-            if epi.text not in ok:
-                print(epi.text)
-                ok.append(epi.text)
-
-                driver.execute_script("arguments[0].click();", epi)
-                
-                time.sleep(3)
-
-                getDataVideo(False)
-
+        driver.switch_to.window(driver.window_handles[1])
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
     except Exception as e:
         print("null")
+    while True:
+        main_element = driver.find_element(By.TAG_NAME, "main")
+        Fch = main_element.find_element(By.TAG_NAME, "div")
+        d1 = Fch.find_element(By.TAG_NAME, "div")
+        d1 = d1.find_element(By.TAG_NAME, "h1")
 
-    
-    
-    driver.switch_to.window(driver.window_handles[0])
+        print("Gener: "+d1.text+"\n\n")
 
-    window_handles = driver.window_handles
+        elements_with_class = Fch.find_elements(By.CLASS_NAME, 'col')
+        
+        for element in elements_with_class:
+            
+            name = element.find_element(By.TAG_NAME, "h2")
+            source = element.find_element(By.TAG_NAME, "a")
+            img = element.find_element(By.TAG_NAME, "img")
+            resolution = element.find_element(By.TAG_NAME, "span")
+            span_element = driver.find_element(By.CLASS_NAME, 'mlbe')
+            num = span_element.find_element(By.TAG_NAME, 'i').text
 
-    for window_handle in window_handles:
-        if window_handle != driver.current_window_handle:
-            driver.switch_to.window(window_handle)
-            driver.close()
+            text_content = span_element.text.replace(num, '')
+            text_content = re.search(uniqueText, text_content)
+            print("\n\nTitle:", name.text)
+            print("Source:", source.get_attribute('href'))
+            print("Img:", img.get_attribute('src'))
+            print("Sol:", text_content.group(0))
+            print("num:", num)
 
-    driver.switch_to.window(driver.window_handles[0])
+            new_tab_url = source.get_attribute('href')
+            driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
 
-    time.sleep(2)
+            driver.switch_to.window(driver.window_handles[1])
+
+            driver.get(new_tab_url)
+
+            getDataVideo(True)
+
+            try:
+                episodes = driver.find_element(By.ID, "eps-list")
+                eps_list = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.ID, "eps-list"))
+                )
+                
+                episodes = eps_list.find_elements(By.TAG_NAME, "button")
+                ok = []
+                ok.append(episodes[0].text)
+                for epi in episodes:
+                    if epi.text not in ok:
+                        print(epi.text)
+                        ok.append(epi.text)
+
+                        driver.execute_script("arguments[0].click();", epi)
+                        
+                        time.sleep(3)
+
+                        getDataVideo(False)
+
+            except Exception as e:
+                print("null")
+
+            
+            
+            driver.switch_to.window(driver.window_handles[0])
+
+            window_handles = driver.window_handles
+
+            for window_handle in window_handles:
+                if window_handle != driver.current_window_handle:
+                    driver.switch_to.window(window_handle)
+                    driver.close()
+
+            driver.switch_to.window(driver.window_handles[0])
+
+            time.sleep(2)
+        try:
+            Next = driver.find_element(By.XPATH, '//a[@aria-label="Next"]')
+            Next.click()
+        except Exception as e:
+                break
+        time.sleep(5)
 driver.quit()
 
