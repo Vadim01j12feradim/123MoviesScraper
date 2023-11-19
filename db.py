@@ -48,35 +48,68 @@ class Sql:
             INSERT INTO Country (Name) VALUES (%(Name)s)
         """
     def insertVideo(self, data):
-        return self.insertAndGetId(self.select_Video_Query, self.insert_Video_Query, data)
+        dataS = {
+            'UrlVideo': data.UrlVideo,
+            'Name': data.Name,
+            'Duration': data.Duration
+        }
+
+        dataI = {
+            'UrlVideo': data.UrlVideo,
+            'Duration': data.Duration,
+            'ReleaseDate': data.ReleaseDate,
+            'Score': data.Score,
+            'Description': data.Description,
+            'Name': data.Name,
+            'Img': data.Img,
+        }
+
+        return self.insertAndGetId(self.select_Video_Query, self.insert_Video_Query, dataS, dataI)
     
     def insertGenre(self, data):
-        return self.insertAndGetId(self.select_Genre_Query, self.insert_Genre_Query, data)
+        data = {
+            'Name': data.Name
+        }
+        return self.insertAndGetId(self.select_Genre_Query, self.insert_Genre_Query, data, data)
     
     def insertActor(self, data):
-        return self.insertAndGetId(self.select_Actor_Query, self.insert_Actor_Query, data)
+        data = {
+            'Name': data.Name
+        }
+        return self.insertAndGetId(self.select_Actor_Query, self.insert_Actor_Query, data, data)
     
     def insertDirector(self, data):
-        return self.insertAndGetId(self.select_Director_Query, self.insert_Director_Query, data)
+        data = {
+            'Name': data.Name
+        }
+        return self.insertAndGetId(self.select_Director_Query, self.insert_Director_Query, data, data)
     
     def insertCountry(self, data):
-        return self.insertAndGetId(self.select_Country_Query, self.insert_Country_Query, data)
+        data = {
+            'Name': data.Name
+        }
+        return self.insertAndGetId(self.select_Country_Query, self.insert_Country_Query, data, data)
     
     def insertSerie(self, data):
-        return self.insertAndGetId(self.select_Serie_Query, self.insert_Serie_Query, data)
+        data = {
+            'Eps': data.Eps,
+            'Name': data.Name,
+            'Img': data.Img
+        }
+        return self.insertAndGetId(self.select_Serie_Query, self.insert_Serie_Query, data, data)
     
-    def insertAndGetId(self,select_query, insert_query, data):
+    def insertAndGetId(self,select_query, insert_query, dataS, dataI):
         last_inserted_id = 0
         with mysql.connector.connect(**self.db_config) as conn:
             with conn.cursor() as cursor:
                 try:
-                    cursor.execute(select_query, data)
+                    cursor.execute(select_query, dataS)
                     existing_record = cursor.fetchone()
 
                     if existing_record:
                         last_inserted_id = existing_record[0]
                     else:
-                        cursor.execute(insert_query, data)
+                        cursor.execute(insert_query, dataI)
                         last_inserted_id = cursor.lastrowid
                     conn.commit()
 

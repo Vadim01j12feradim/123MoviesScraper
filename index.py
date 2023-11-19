@@ -9,6 +9,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from Models import *
 from db import *
 
+sql = Sql()
+
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
 def getDataVideo(click):
@@ -34,7 +36,23 @@ def getDataVideo(click):
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
     video.UrlVideo = urlVideo
-    # print("Video"+urlVideo)
+
+    name = driver.find_element(By.TAG_NAME, "h1")
+    video.Name = name.text
+
+    img = driver.find_element(By.TAG_NAME, "img")
+    video.Img = img.text
+
+    openNewTab(urlVideo, 2)
+    time.sleep(5)
+    try:
+        target_div = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
+        video.Duration = target_div.text
+        driver.close()
+        driver.switch_to.window(driver.window_handles[1])
+
+    except Exception as e:
+        print("null")
 
     GenreD = driver.find_element(By.XPATH, "//strong[text()='Genre:']")
     GenreD = GenreD.find_element(By.XPATH, "..")
@@ -42,7 +60,7 @@ def getDataVideo(click):
     genresIds = []
     for genreD in Genres:
         genre.Name = genreD.text
-        id = sql.insert_Genre_Query(genre)
+        id = sql.insertGenre(genre)
         genresIds.append(id)
 
     ActorD = driver.find_element(By.XPATH, "//strong[text()='Actor:']")
@@ -72,22 +90,11 @@ def getDataVideo(click):
         idC = sql.insertCountry(country)
         countryIds.append(idC)
 
-    try:
-        Episode = driver.find_element(By.XPATH, "//strong[text()='Episode:']")
-        Episode = Episode.find_element(By.XPATH, "..")
-        print(Episode.text)
-    except Exception as e:
-        Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
-        Quality = Quality.find_element(By.XPATH, "..")
-        print(Quality.text)
-
     Release = driver.find_element(By.XPATH, "//strong[text()='Release:']")
     Release = Release.find_element(By.XPATH, "..")
-    Releases = Release.find_elements(By.TAG_NAME, "a")
-    for rel in Releases:
-        print(rel.text)
+    Releases = Release.find_element(By.TAG_NAME, "a")
+    video.Release = Releases.text
     
-
     IMDb = driver.find_element(By.XPATH, "//strong[text()='IMDb:']")
     IMDb = IMDb.find_element(By.XPATH, "..")
     print(IMDb.text)
@@ -97,14 +104,24 @@ def getDataVideo(click):
     print(Duration.text)
 
     try:
+        Episode = driver.find_element(By.XPATH, "//strong[text()='Episode:']")
+        Episode = Episode.find_element(By.XPATH, "..")
+
+        print(Episode.text)
+    except Exception as e:
+        Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
+        Quality = Quality.find_element(By.XPATH, "..")
+        print(Quality.text)
+
+    try:
         target_div = driver.find_element(By.XPATH, '//div[contains(@class,"fst-italic") and contains(@class,"lh-sm") and contains(@class,"mb-2")]')
         print(target_div.text)
     except Exception as e:
         print("null")
 
-def openNewTab(url):        
+def openNewTab(new_tab_url, target):        
     driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
-    driver.switch_to.window(driver.window_handles[1])
+    driver.switch_to.window(driver.window_handles[target])
     driver.get(new_tab_url)
 
 
@@ -118,7 +135,7 @@ driver.switch_to.window(driver.window_handles[0])
 
 Genres = Genres.find_element(By.XPATH, 'following-sibling::*')
 Genres = Genres.find_elements(By.TAG_NAME, "li")
-sql = Sql()
+
 
 for gener in Genres:
     gener.click()
@@ -150,15 +167,14 @@ for gener in Genres:
             img = element.find_element(By.TAG_NAME, "img")
             resolution = element.find_element(By.TAG_NAME, "span")
 
-            span_element = element.find_element(By.CLASS_NAME, 'mlbe')
             try:
+                span_element = element.find_element(By.CLASS_NAME, 'mlbe')  
                 num = span_element.find_element(By.TAG_NAME, 'i').text
                 serie.Eps = num
                 serie.Name = name.text
                 serie.Img = img.get_attribute('src')
                 idSerie = sql.insertSerie(serie)
-                openNewTab(new_tab_url)
-                
+                openNewTab(new_tab_url, 1)
                 try:
                     episodes = driver.find_element(By.ID, "eps-list")
                     eps_list = WebDriverWait(driver, 10).until(
@@ -168,7 +184,9 @@ for gener in Genres:
                     episodes = eps_list.find_elements(By.TAG_NAME, "button")
                     ok = []
                     ok.append(episodes[0].text)
-                    getDataVideo(True)
+                    idsMovies = []
+                    firstEpisode = getDataVideo(True)
+                    idsMovies.append(firstEpisode)
                     for epi in episodes:
                         if epi.text not in ok:
                             print(epi.text)
@@ -180,12 +198,11 @@ for gener in Genres:
                 except Exception as e:
                     print("null")
             except Exception as e:
-                span_element = element.find_element(By.CLASS_NAME, 'mlbq')
-                num = span_element.find_element(By.TAG_NAME, 'i').text
-                video.Name = name.text
-                video.Img = img.get_attribute('src')
-                openNewTab(new_tab_url)
-                getDataVideo(True)
+                span_element = element.find_element(By.CLASS_NAME, 'mlbq').text
+                movie.Quality = span_element
+                movie.Img = img.get_attribute('src')
+                openNewTab(new_tab_url, 1)
+                movie.IdVideo = getDataVideo(True)
 
             driver.switch_to.window(driver.window_handles[0])
 
