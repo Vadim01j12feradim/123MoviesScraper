@@ -20,6 +20,13 @@ def getDataVideo(click):
     director = Director()
     country = Country()
 
+    img = driver.find_element(By.ID, "play-now")
+    img = img.find_element(By.TAG_NAME, "picture")
+    img = img.find_element(By.TAG_NAME, "img")
+    src = img.get_attribute('src')
+    video.Img = src
+
+
     if click:
         mid = driver.find_element(By.ID, "mid")
         mid.click()
@@ -40,14 +47,11 @@ def getDataVideo(click):
     name = driver.find_element(By.TAG_NAME, "h1")
     video.Name = name.text
 
-    img = driver.find_element(By.TAG_NAME, "img")
-    video.Img = img.text
-
     openNewTab(urlVideo, 2)
-    time.sleep(5)
     try:
-        target_div = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
-        video.Duration = target_div.text
+        time.sleep(8)
+        Duration = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
+        video.Duration = Duration.get_attribute("innerHTML")
         driver.close()
         driver.switch_to.window(driver.window_handles[1])
 
@@ -62,6 +66,7 @@ def getDataVideo(click):
         genre.Name = genreD.text
         id = sql.insertGenre(genre)
         genresIds.append(id)
+    video.Genre = genresIds
 
     ActorD = driver.find_element(By.XPATH, "//strong[text()='Actor:']")
     ActorD = ActorD.find_element(By.XPATH, "..")
@@ -71,7 +76,8 @@ def getDataVideo(click):
         actor.Name = act.text
         idA  = sql.insertActor(actor)
         actorsIds.append(idA)
-    
+    video.Actor = actorsIds
+
     DirectorStr = driver.find_element(By.XPATH, "//strong[text()='Director:']")
     DirectorStr = DirectorStr.find_element(By.XPATH, "..").text
     array_dir = re.split(r',', DirectorStr)
@@ -80,6 +86,7 @@ def getDataVideo(click):
         director.Name = dir
         idD = sql.insertDirector(director)
         directorIds.append(idD)
+    video.Director = directorIds
         
     CountryD = driver.find_element(By.XPATH, "//strong[text()='Country:']")
     CountryD = CountryD.find_element(By.XPATH, "..")
@@ -89,6 +96,7 @@ def getDataVideo(click):
         country.Name = countr.text
         idC = sql.insertCountry(country)
         countryIds.append(idC)
+    video.Country = countryIds
 
     Release = driver.find_element(By.XPATH, "//strong[text()='Release:']")
     Release = Release.find_element(By.XPATH, "..")
@@ -97,7 +105,9 @@ def getDataVideo(click):
     
     IMDb = driver.find_element(By.XPATH, "//strong[text()='IMDb:']")
     IMDb = IMDb.find_element(By.XPATH, "..")
-    print(IMDb.text)
+    pattern = re.compile(r'\w\.\w|\w+')  # Word boundary, one or more word characters
+    result = pattern.findall(IMDb.text[6:])
+    video.Score = result[0]
     
     Duration = driver.find_element(By.XPATH, "//strong[text()='Duration:']")
     Duration = Duration.find_element(By.XPATH, "..")
@@ -106,7 +116,6 @@ def getDataVideo(click):
     try:
         Episode = driver.find_element(By.XPATH, "//strong[text()='Episode:']")
         Episode = Episode.find_element(By.XPATH, "..")
-
         print(Episode.text)
     except Exception as e:
         Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
@@ -114,10 +123,11 @@ def getDataVideo(click):
         print(Quality.text)
 
     try:
-        target_div = driver.find_element(By.XPATH, '//div[contains(@class,"fst-italic") and contains(@class,"lh-sm") and contains(@class,"mb-2")]')
-        print(target_div.text)
+        description = driver.find_element(By.XPATH, '//div[contains(@class,"fst-italic") and contains(@class,"lh-sm") and contains(@class,"mb-2")]')
+        video.Description = description.get_attribute("innerHTML")
     except Exception as e:
         print("null")
+    return sql.insertVideo(video)
 
 def openNewTab(new_tab_url, target):        
     driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
@@ -176,14 +186,16 @@ for gener in Genres:
                 idSerie = sql.insertSerie(serie)
                 openNewTab(new_tab_url, 1)
                 try:
-                    episodes = driver.find_element(By.ID, "eps-list")
+                    # episodes = driver.find_element(By.ID, "eps-list")
                     eps_list = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.ID, "eps-list"))
                     )
                     
                     episodes = eps_list.find_elements(By.TAG_NAME, "button")
+                    pattern = re.compile(r'\w+')  # Word boundary, one or more word characters
+                    result = pattern.findall(episodes[0].get_attribute("innerHTML"))
                     ok = []
-                    ok.append(episodes[0].text)
+                    ok.append(result[1])
                     idsMovies = []
                     firstEpisode = getDataVideo(True)
                     idsMovies.append(firstEpisode)
