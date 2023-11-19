@@ -1,4 +1,5 @@
 import mysql.connector
+from datetime import datetime
 
 class Sql:
     def __init__(self):
@@ -53,11 +54,13 @@ class Sql:
             'Name': data.Name,
             'Duration': data.Duration
         }
+        date_string = f"{data.Release}-01-01"
+        date_object = datetime.strptime(date_string, "%Y-%m-%d")
 
         dataI = {
             'UrlVideo': data.UrlVideo,
             'Duration': data.Duration,
-            'ReleaseDate': data.ReleaseDate,
+            'ReleaseDate': date_object,
             'Score': data.Score,
             'Description': data.Description,
             'Name': data.Name,
