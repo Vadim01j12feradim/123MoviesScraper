@@ -11,11 +11,11 @@ class Sql:
             'database': '123Movies',
         }
         self.insert_Video_Query = """
-            INSERT INTO Video (UrlVideo, Duration, ReleaseDate, Score, Description, Name, Img)
-            VALUES (%(UrlVideo)s, %(Duration)s, %(ReleaseDate)s, %(Score)s, %(Description)s, %(Name)s, %(Img)s)
+            INSERT INTO Video (UrlVideo, Duration, ReleaseDate, Score, Description, Name, Img, Episode)
+            VALUES (%(UrlVideo)s, %(Duration)s, %(ReleaseDate)s, %(Score)s, %(Description)s, %(Name)s, %(Img)s, %(Episode)s)
         """
         self.select_Video_Query = """
-            SELECT Id FROM Video WHERE Img =  %(Img)s AND Name = %(Name)s AND Duration = %(Duration)s AND ReleaseDate = %(ReleaseDate)s 
+            SELECT Id FROM Video WHERE Img =  %(Img)s AND Name = %(Name)s AND Duration = %(Duration)s AND ReleaseDate = %(ReleaseDate)s AND Episode = %(Episode)s
         """
         self.insert_Serie_Query = """
             INSERT INTO Serie (Eps, Name, Img)
@@ -158,7 +158,8 @@ class Sql:
             'Img': data.UrlVideo,
             'Name': data.Name,
             'Duration': data.Duration,
-            'ReleaseDate': date_object
+            'ReleaseDate': date_object,
+            'Episode': data.Episode
         }
 
         dataI = {
@@ -169,6 +170,7 @@ class Sql:
             'Description': data.Description,
             'Name': data.Name,
             'Img': data.Img,
+            'Episode': data.Episode
         }
 
         return self.insertAndGetId(self.select_Video_Query, self.insert_Video_Query, dataS, dataI)

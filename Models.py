@@ -8,6 +8,7 @@ class Video:
         self.Description = ""
         self.Name = ""
         self.Img = ""
+        self.Episode = ""
         self.Genre =[]
         self.Actor =[]
         self.Director =[]

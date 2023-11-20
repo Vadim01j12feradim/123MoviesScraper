@@ -13,7 +13,7 @@ sql = Sql()
 
 driver.get('https://ww2.123moviesfree.net/genre/action/')
 
-def getDataVideo(click):
+def getDataVideo(click, episod):
     genre = Genre()
     actor = Actor()
     video = Video()
@@ -47,20 +47,30 @@ def getDataVideo(click):
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
     video.UrlVideo = urlVideo
+    video.Episode = episod
 
     name = driver.find_element(By.TAG_NAME, "h1")
     video.Name = name.text
-    try:
-        openNewTab(urlVideo, 2)
-        time.sleep(8)
-        Duration = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
-        video.Duration = Duration.get_attribute("innerHTML")
-        driver.close()
-        driver.switch_to.window(driver.window_handles[1])
+    openNewTab(urlVideo, 2)
+    
+    flag = 3
+    while flag >= 0:
+        try:
+            time.sleep(8)
+            Duration = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
+            video.Duration = Duration.get_attribute("innerHTML")
+            if video.Duration == '00:00':
+                flag -= 1
+            else:
+                break
+        except Exception as e:
+            flag -= 1
+            print("null")
+    if flag < 0:
+        return -1
 
-    except Exception as e:
-        e  = 1
-        print("null")
+    driver.close()
+    driver.switch_to.window(driver.window_handles[1])
 
     GenreD = driver.find_element(By.XPATH, "//strong[text()='Genre:']")
     GenreD = GenreD.find_element(By.XPATH, "..")
@@ -120,11 +130,15 @@ def getDataVideo(click):
     try:
         Episode = driver.find_element(By.XPATH, "//strong[text()='Episode:']")
         Episode = Episode.find_element(By.XPATH, "..")
-        print(Episode.text)
+        pattern = re.compile(r'\d+')  # Word boundary, one or more word characters
+        result = pattern.findall(Episode.text)
+        # video.Episode = result[0]
+        # print(Episode.text)
     except Exception as e:
         Quality = driver.find_element(By.XPATH, "//strong[text()='Quality:']")
         Quality = Quality.find_element(By.XPATH, "..")
-        print(Quality.text)
+        # video.Quality = Quality.text
+        # print(Quality.text)
 
     try:
         description = driver.find_element(By.XPATH, '//div[contains(@class,"fst-italic") and contains(@class,"lh-sm") and contains(@class,"mb-2")]')
@@ -237,23 +251,20 @@ for gener in Genres:
                     ok = []
                     ok.append(result)
                     idsMovies = []
-                    try:
-                        firstEpisode = getDataVideo(True)
-                    except Exception as e:
-                        continue
-                    idsMovies.append(firstEpisode)
+                    firstEpisode = getDataVideo(True, result)
+                    if firstEpisode != -1:
+                        idsMovies.append(firstEpisode)
                     for epi in episodes:
                         result = pattern.findall(epi.get_attribute("innerHTML"))
                         result = result[1]
                         if result not in ok:
-                            print(result)
                             ok.append(result)
                             driver.execute_script("arguments[0].click();", epi)
                             time.sleep(3)
-                            try:
-                                idsMovies.append(getDataVideo(False))
-                            except Exception as e:
-                                continue
+                            idCurrent = getDataVideo(False, result)
+                            if idCurrent != -1:
+                                idsMovies.append(idCurrent)
+                            
                     serie_video = SerieVideo()
                     serie_video.IdSerie = idSerie
 
@@ -262,6 +273,7 @@ for gener in Genres:
                         sql.insertSerieVideo(serie_video)
 
                 except Exception as e:
+                    e = 1
                     print(e)
             except Exception as e:
                 span_element = element.find_element(By.CLASS_NAME, 'mlbq').text
@@ -269,12 +281,11 @@ for gener in Genres:
                 movie.Img = img.get_attribute('src')
                 openNewTab(new_tab_url, 1)
 
-                try:
-                    movie.IdVideo = getDataVideo(True)
-                except Exception as e:
-                    continue
-
-                sql.insertMovie(movie)
+                
+                movie.IdVideo = getDataVideo(True, "")
+               
+                if movie.IdVideo != -1: 
+                    sql.insertMovie(movie)
 
             driver.switch_to.window(driver.window_handles[0])
 
