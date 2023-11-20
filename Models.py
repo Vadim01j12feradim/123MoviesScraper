@@ -48,3 +48,35 @@ class Country:
         self.Id = 0
         self.Name = ""
 
+class SerieVideo:
+    def __init__(self):
+        self.Id = 0
+        self.IdSerie = 0
+        self.IdVideo = 0
+    
+
+class VideoActor:
+    def __init__(self):
+        self.Id = 0
+        self.IdVideo = 0
+        self.IdActor = 0
+
+class VideoCountry:
+    def __init__(self):	 	
+        self.Id = 0
+        self.IdVideo = 0
+        self.IdCountry = 0
+
+class VideoDirector:
+    def __init__(self):	 	
+        self.Id = 0
+        self.IdVideo = 0
+        self.IdDirector = 0
+
+class VideoGenre:
+    def __init__(self):	 	
+        self.Id = 0
+        self.IdVideo = 0
+        self.IdGenre = 0
+
+

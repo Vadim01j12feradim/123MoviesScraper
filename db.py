@@ -49,6 +49,98 @@ class Sql:
         self.insert_Country_Query = """
             INSERT INTO Country (Name) VALUES (%(Name)s)
         """
+
+        self.insert_Movie_Query = """
+            INSERT INTO Movie (IdVideo, Img, Quality)
+            VALUES (%(IdVideo)s, %(Img)s, %(Quality)s)
+        """
+        self.select_Movie_Query = """
+            SELECT Id FROM Movie WHERE IdVideo =  %(IdVideo)s AND Img = %(Img)s AND Quality = %(Quality)s
+        """
+
+        self.select_SerieVideo_Query = """
+            SELECT Id FROM SerieVideo WHERE IdSerie =  %(IdSerie)s AND IdVideo = %(IdVideo)s
+        """
+        self.insert_SerieVideo_Query = """
+            INSERT INTO SerieVideo (IdSerie, IdVideo)
+            VALUES (%(IdSerie)s, %(IdVideo)s)
+        """
+        self.select_VideoActor_Query = """
+            SELECT Id FROM VideoActor WHERE IdVideo =  %(IdVideo)s AND IdActor = %(IdActor)s
+        """
+        self.insert_VideoActor_Query = """
+            INSERT INTO VideoActor (IdVideo, IdActor)
+            VALUES (%(IdVideo)s, %(IdActor)s)
+        """
+        self.select_VideoCountry_Query = """
+            SELECT Id FROM VideoCountry WHERE IdVideo =  %(IdVideo)s AND IdCountry = %(IdCountry)s
+        """
+        self.insert_VideoCountry_Query = """
+            INSERT INTO VideoCountry (IdVideo, IdCountry)
+            VALUES (%(IdVideo)s, %(IdCountry)s)
+        """
+        self.select_VideoDirector_Query = """
+            SELECT Id FROM VideoDirector WHERE IdVideo =  %(IdVideo)s AND IdDirector = %(IdDirector)s
+        """
+        self.insert_VideoDirector_Query = """
+            INSERT INTO VideoDirector (IdVideo, IdDirector)
+            VALUES (%(IdVideo)s, %(IdDirector)s)
+        """
+        self.select_VideoGenre_Query = """
+            SELECT Id FROM VideoGenre WHERE IdVideo =  %(IdVideo)s AND IdGenre = %(IdGenre)s
+        """
+        self.insert_VideoGenre_Query = """
+            INSERT INTO VideoGenre (IdVideo, IdGenre)
+            VALUES (%(IdVideo)s, %(IdGenre)s)
+        """
+
+    
+
+    def insertVideoGenre(self, data):
+        data = {
+            'IdVideo': data.IdVideo,
+            'IdGenre': data.IdGenre
+        }
+        return self.insertAndGetId(self.select_VideoGenre_Query, self.insert_VideoGenre_Query, data, data)
+    
+    def insertVideoDirector(self, data):
+        data = {
+            'IdVideo': data.IdVideo,
+            'IdDirector': data.IdDirector
+        }
+        return self.insertAndGetId(self.select_VideoDirector_Query, self.insert_VideoDirector_Query, data, data)
+    
+    def insertVideoCountry(self, data):
+        data = {
+            'IdVideo': data.IdVideo,
+            'IdCountry': data.IdCountry
+        }
+        return self.insertAndGetId(self.select_VideoActor_Query, self.insert_VideoActor_Query, data, data)
+    
+
+    def insertVideoActor(self, data):
+        data = {
+            'IdVideo': data.IdVideo,
+            'IdActor': data.IdActor
+        }
+        return self.insertAndGetId(self.select_VideoActor_Query, self.insert_VideoActor_Query, data, data)
+    
+    def insertSerieVideo(self, data):
+        data = {
+            'IdSerie': data.IdSerie,
+            'IdVideo': data.IdVideo
+        }
+        return self.insertAndGetId(self.select_SerieVideo_Query, self.insert_SerieVideo_Query, data, data)
+    
+
+    def insertMovie(self, data):
+        data = {
+            'IdVideo': data.IdVideo,
+            'Img': data.Img,
+            'Quality': data.Quality
+        }
+        return self.insertAndGetId(self.select_Movie_Query, self.insert_Movie_Query, data, data)
+    
     def insertVideo(self, data):
 
         date_string = f"{data.Release}-01-01"

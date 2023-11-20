@@ -21,7 +21,7 @@ def getDataVideo(click):
     country = Country()
 
     # driver.refresh()
-    # time.sleep(2)
+    time.sleep(2)
 
 
     if click:
@@ -50,9 +50,8 @@ def getDataVideo(click):
 
     name = driver.find_element(By.TAG_NAME, "h1")
     video.Name = name.text
-
-    openNewTab(urlVideo, 2)
     try:
+        openNewTab(urlVideo, 2)
         time.sleep(8)
         Duration = driver.find_element(By.XPATH, '//div[contains(@class,"jw-icon") and contains(@class,"jw-icon-inline") and contains(@class,"jw-text")  and contains(@class,"jw-reset") and contains(@class,"jw-text-duration")]')
         video.Duration = Duration.get_attribute("innerHTML")
@@ -60,6 +59,7 @@ def getDataVideo(click):
         driver.switch_to.window(driver.window_handles[1])
 
     except Exception as e:
+        e  = 1
         print("null")
 
     GenreD = driver.find_element(By.XPATH, "//strong[text()='Genre:']")
@@ -131,7 +131,34 @@ def getDataVideo(click):
         video.Description = description.get_attribute("innerHTML")
     except Exception as e:
         print("null")
-    idRet =  sql.insertVideo(video)
+    idRet = sql.insertVideo(video)
+
+    # Insert Actors
+    Video_Actor = VideoActor()
+    Video_Actor.IdVideo = idRet
+
+    for act in actorsIds:
+        Video_Actor.IdActor = act
+        sql.insertVideoActor(Video_Actor)
+    
+    Video_Country = VideoCountry()
+    Video_Country.IdVideo = idRet
+    for coId in countryIds:
+        Video_Country.IdCountry = coId
+        sql.insertVideoCountry(Video_Country)
+
+    Video_Director = VideoDirector()
+    Video_Director.IdVideo = idRet
+    for dirE in directorIds: 
+        Video_Director.IdDirector = dirE
+        sql.insertVideoDirector(Video_Director)
+
+    Video_Genre = VideoGenre()
+    Video_Genre.IdVideo = idRet
+    for genR in genresIds:
+        Video_Genre.IdGenre = genR
+        sql.insertVideoGenre(Video_Genre)
+    
     return idRet
 
 def openNewTab(new_tab_url, target):        
@@ -210,7 +237,10 @@ for gener in Genres:
                     ok = []
                     ok.append(result)
                     idsMovies = []
-                    firstEpisode = getDataVideo(True)
+                    try:
+                        firstEpisode = getDataVideo(True)
+                    except Exception as e:
+                        continue
                     idsMovies.append(firstEpisode)
                     for epi in episodes:
                         result = pattern.findall(epi.get_attribute("innerHTML"))
@@ -220,17 +250,31 @@ for gener in Genres:
                             ok.append(result)
                             driver.execute_script("arguments[0].click();", epi)
                             time.sleep(3)
-                            getDataVideo(False)
+                            try:
+                                idsMovies.append(getDataVideo(False))
+                            except Exception as e:
+                                continue
+                    serie_video = SerieVideo()
+                    serie_video.IdSerie = idSerie
+
+                    for mov in idsMovies:
+                        serie_video.IdVideo = mov
+                        sql.insertSerieVideo(serie_video)
+
                 except Exception as e:
                     print(e)
-                    e = 0
-                    print("null")
             except Exception as e:
                 span_element = element.find_element(By.CLASS_NAME, 'mlbq').text
                 movie.Quality = span_element
                 movie.Img = img.get_attribute('src')
                 openNewTab(new_tab_url, 1)
-                movie.IdVideo = getDataVideo(True)
+
+                try:
+                    movie.IdVideo = getDataVideo(True)
+                except Exception as e:
+                    continue
+
+                sql.insertMovie(movie)
 
             driver.switch_to.window(driver.window_handles[0])
 
