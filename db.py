@@ -94,6 +94,14 @@ class Sql:
             VALUES (%(IdVideo)s, %(IdGenre)s)
         """
 
+        self.select_VideoCountry_Query = """
+            SELECT Id FROM VideoCountry WHERE IdVideo =  %(IdVideo)s AND IdCountry = %(IdCountry)s
+        """
+        self.insert_VideoCountry_Query = """
+            INSERT INTO VideoCountry (IdVideo, IdCountry)
+            VALUES (%(IdVideo)s, %(IdCountry)s)
+        """
+
     
 
     def insertVideoGenre(self, data):
@@ -115,7 +123,7 @@ class Sql:
             'IdVideo': data.IdVideo,
             'IdCountry': data.IdCountry
         }
-        return self.insertAndGetId(self.select_VideoActor_Query, self.insert_VideoActor_Query, data, data)
+        return self.insertAndGetId(self.select_VideoCountry_Query, self.insert_VideoCountry_Query, data, data)
     
 
     def insertVideoActor(self, data):
