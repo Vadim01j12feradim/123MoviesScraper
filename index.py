@@ -238,10 +238,6 @@ for gener in Genres:
                 idSerie = sql.insertSerie(serie)
                 openNewTab(new_tab_url, 1)
                 try:
-                    # episodes = driver.find_element(By.ID, "eps-list")
-                    # eps_list = WebDriverWait(driver, 10).until(
-                    #     EC.presence_of_element_located((By.ID, "eps-list"))
-                    # )
                     
                     episodes = getEpisodes()#eps_list.find_elements(By.TAG_NAME, "button")
 
@@ -254,24 +250,27 @@ for gener in Genres:
                     firstEpisode = getDataVideo(True, result)
                     if firstEpisode != -1:
                         idsMovies.append(firstEpisode)
-                    for epi in episodes:
-                        result = pattern.findall(epi.get_attribute("innerHTML"))
-                        result = result[1]
-                        if result not in ok:
-                            ok.append(result)
-                            driver.execute_script("arguments[0].click();", epi)
-                            time.sleep(3)
-                            idCurrent = getDataVideo(False, result)
-                            if idCurrent != -1:
-                                idsMovies.append(idCurrent)
-                            
-                    serie_video = SerieVideo()
-                    serie_video.IdSerie = idSerie
+                    try:
+                        for epi in episodes:
+                            result = pattern.findall(epi.get_attribute("innerHTML"))
+                            result = result[1]
+                            if result not in ok:
+                                ok.append(result)
+                                driver.execute_script("arguments[0].click();", epi)
+                                time.sleep(3)
+                                idCurrent = getDataVideo(False, result)
+                                if idCurrent != -1:
+                                    idsMovies.append(idCurrent)
+                                
+                        serie_video = SerieVideo()
+                        serie_video.IdSerie = idSerie
 
-                    for mov in idsMovies:
-                        serie_video.IdVideo = mov
-                        sql.insertSerieVideo(serie_video)
-
+                        for mov in idsMovies:
+                            serie_video.IdVideo = mov
+                            sql.insertSerieVideo(serie_video)
+                    except Exception as e:
+                        e = 1
+                        print(e)
                 except Exception as e:
                     e = 1
                     print(e)
