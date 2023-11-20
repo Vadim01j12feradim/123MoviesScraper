@@ -3,6 +3,7 @@ from datetime import datetime
 
 class Sql:
     def __init__(self):
+        self.imgMovieSrcTemp = ""
         self.db_config = {
             'host': 'localhost',
             'user': 'Username',
@@ -14,7 +15,7 @@ class Sql:
             VALUES (%(UrlVideo)s, %(Duration)s, %(ReleaseDate)s, %(Score)s, %(Description)s, %(Name)s, %(Img)s)
         """
         self.select_Video_Query = """
-            SELECT Id FROM Video WHERE UrlVideo =  %(UrlVideo)s AND Name = %(Name)s AND Duration = %(Duration)s
+            SELECT Id FROM Video WHERE Img =  %(Img)s AND Name = %(Name)s AND Duration = %(Duration)s AND ReleaseDate = %(ReleaseDate)s 
         """
         self.insert_Serie_Query = """
             INSERT INTO Serie (Eps, Name, Img)
@@ -49,13 +50,16 @@ class Sql:
             INSERT INTO Country (Name) VALUES (%(Name)s)
         """
     def insertVideo(self, data):
-        dataS = {
-            'UrlVideo': data.UrlVideo,
-            'Name': data.Name,
-            'Duration': data.Duration
-        }
+
         date_string = f"{data.Release}-01-01"
         date_object = datetime.strptime(date_string, "%Y-%m-%d")
+
+        dataS = {
+            'Img': data.UrlVideo,
+            'Name': data.Name,
+            'Duration': data.Duration,
+            'ReleaseDate': date_object
+        }
 
         dataI = {
             'UrlVideo': data.UrlVideo,

@@ -20,14 +20,17 @@ def getDataVideo(click):
     director = Director()
     country = Country()
 
-    img = driver.find_element(By.ID, "play-now")
-    img = img.find_element(By.TAG_NAME, "picture")
-    img = img.find_element(By.TAG_NAME, "img")
-    src = img.get_attribute('src')
-    video.Img = src
+    # driver.refresh()
+    # time.sleep(2)
 
 
     if click:
+        img = driver.find_element(By.ID, "play-now")
+        img = img.find_element(By.TAG_NAME, "picture")
+        img = img.find_element(By.TAG_NAME, "img")
+        src = img.get_attribute('src')
+        video.Img = src
+        sql.imgMovieSrcTemp = src
         mid = driver.find_element(By.ID, "mid")
         mid.click()
         time.sleep(3)
@@ -40,6 +43,7 @@ def getDataVideo(click):
         finally:
             driver.switch_to.window(driver.window_handles[1])
 
+    video.Img = sql.imgMovieSrcTemp
     playit = driver.find_element(By.ID, "playit")
     urlVideo = playit.get_attribute('src')
     video.UrlVideo = urlVideo
@@ -127,14 +131,21 @@ def getDataVideo(click):
         video.Description = description.get_attribute("innerHTML")
     except Exception as e:
         print("null")
-    return sql.insertVideo(video)
+    idRet =  sql.insertVideo(video)
+    return idRet
 
 def openNewTab(new_tab_url, target):        
     driver.execute_script(f'window.open("{new_tab_url}", "_blank");')
     driver.switch_to.window(driver.window_handles[target])
     driver.get(new_tab_url)
 
-
+def getEpisodes():
+    eps_list = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.ID, "eps-list"))
+                    )
+                    
+    episodes = eps_list.find_elements(By.TAG_NAME, "button")
+    return episodes
 uniqueText = r"\w+"
 # Print the text content of each element
 Genres = driver.find_element(By.XPATH, '//a[contains(.,"Genres")]')
@@ -187,27 +198,32 @@ for gener in Genres:
                 openNewTab(new_tab_url, 1)
                 try:
                     # episodes = driver.find_element(By.ID, "eps-list")
-                    eps_list = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.ID, "eps-list"))
-                    )
+                    # eps_list = WebDriverWait(driver, 10).until(
+                    #     EC.presence_of_element_located((By.ID, "eps-list"))
+                    # )
                     
-                    episodes = eps_list.find_elements(By.TAG_NAME, "button")
+                    episodes = getEpisodes()#eps_list.find_elements(By.TAG_NAME, "button")
+
                     pattern = re.compile(r'\w+')  # Word boundary, one or more word characters
                     result = pattern.findall(episodes[0].get_attribute("innerHTML"))
+                    result = result[1]
                     ok = []
-                    ok.append(result[1])
+                    ok.append(result)
                     idsMovies = []
                     firstEpisode = getDataVideo(True)
                     idsMovies.append(firstEpisode)
                     for epi in episodes:
-                        if epi.text not in ok:
-                            print(epi.text)
-                            ok.append(epi.text)
+                        result = pattern.findall(epi.get_attribute("innerHTML"))
+                        result = result[1]
+                        if result not in ok:
+                            print(result)
+                            ok.append(result)
                             driver.execute_script("arguments[0].click();", epi)
                             time.sleep(3)
                             getDataVideo(False)
-
                 except Exception as e:
+                    print(e)
+                    e = 0
                     print("null")
             except Exception as e:
                 span_element = element.find_element(By.CLASS_NAME, 'mlbq').text
